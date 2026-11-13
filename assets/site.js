@@ -7,12 +7,43 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
-  // Mobile menu.
+  // Mobile menu: the hamburger opens the whole nav as a panel under the header.
   var toggle = $(".menu-toggle"), nav = $("#site-nav");
-  if (toggle && nav) toggle.addEventListener("click", function () {
-    var open = nav.classList.toggle("is-open");
+  var setNav = function (open) {
+    if (!toggle || !nav) return;
+    nav.classList.toggle("is-open", open);
     toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+  if (toggle && nav) toggle.addEventListener("click", function () { setNav(!nav.classList.contains("is-open")); });
+
+  // Products dropdown. A button that opens a panel: click or tap toggles it,
+  // a mouse opens it on hover (desktop), Esc or a click elsewhere closes it,
+  // and the arrow keys move between its links.
+  var desktop = window.matchMedia("(min-width: 981px)");
+  $$(".has-menu").forEach(function (item) {
+    var btn = $(".nav-trigger", item), menu = $(".menu", item), timer;
+    if (!btn || !menu) return;
+    var links = $$("a", menu);
+    var set = function (open) {
+      item.classList.toggle("is-open", open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+    btn.addEventListener("click", function (e) { e.stopPropagation(); set(!item.classList.contains("is-open")); });
+    item.addEventListener("pointerenter", function (e) { if (e.pointerType === "mouse" && desktop.matches) { clearTimeout(timer); set(true); } });
+    item.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse" && desktop.matches) { timer = setTimeout(function () { set(false); }, 140); } });
+    item.addEventListener("keydown", function (e) {
+      var i = links.indexOf(document.activeElement);
+      if (e.key === "Escape") { set(false); btn.focus(); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); set(true); links[Math.min(i + 1, links.length - 1)].focus(); }
+      else if (e.key === "ArrowUp" && i > -1) { e.preventDefault(); (i === 0 ? btn : links[i - 1]).focus(); }
+    });
+    item.addEventListener("focusout", function (e) { if (desktop.matches && !item.contains(e.relatedTarget)) set(false); });
+    document.addEventListener("click", function (e) { if (!item.contains(e.target)) set(false); });
+    // Choosing a link (often a #category on the same page) closes the menus.
+    links.forEach(function (a) { a.addEventListener("click", function () { set(false); setNav(false); }); });
   });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && nav && nav.classList.contains("is-open")) { setNav(false); toggle.focus(); } });
+  desktop.addEventListener && desktop.addEventListener("change", function () { setNav(false); });
 
   // A hairline under the header once the page scrolls.
   var header = $(".site-header");
@@ -60,9 +91,17 @@
     });
     if (search) search.addEventListener("input", apply);
     // Arriving from a category link (products.html#brakes) opens that filter.
-    var hash = (location.hash || "").slice(1);
-    var pre = filters.filter(function (f) { return f.getAttribute("data-filter") === hash; })[0];
-    if (pre) pre.click(); else apply();
+    var fromHash = function () {
+      var hash = (location.hash || "").slice(1);
+      var pre = filters.filter(function (f) { return f.getAttribute("data-filter") === hash; })[0];
+      if (pre) { pre.click(); return true; }
+      return false;
+    };
+    if (!fromHash()) apply();
+    // The header's Products menu links to #category on this same page too.
+    window.addEventListener("hashchange", function () {
+      if (fromHash()) { var top = $(".catalogue-tools"); if (top) top.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }
+    });
   }
 
   // Quote form: filled in from the part finder or an "Ask for price" link,
