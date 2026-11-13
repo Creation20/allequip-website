@@ -478,3 +478,10 @@ select::-ms-expand { display: none; }
 .skip { position: absolute; left: -9999px; top: 0; }
 .skip:focus { left: 16px; top: 16px; z-index: 100; background: #fff; padding: 10px 14px; border-radius: var(--r); box-shadow: var(--shadow); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* "Open 24 hours": a small live dot so it reads at a glance. */
+.open-now { color: #fff; font-weight: 600; }
+.open-now::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #3ccf7a; box-shadow: 0 0 0 3px rgba(60, 207, 122, .22); order: -1; }
+.topbar .open-now svg { display: none; }
+.footer-open { color: #fff; font-weight: 600; }
+.contact-card--open .icon { background: var(--orange); color: var(--navy-900); }
