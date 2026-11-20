@@ -485,3 +485,14 @@ select::-ms-expand { display: none; }
 .topbar .open-now svg { display: none; }
 .footer-open { color: #fff; font-weight: 600; }
 .contact-card--open .icon { background: var(--orange); color: var(--navy-900); }
+
+/* ------------------------------------------------- machine gallery */
+.machine-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.machine-card { border-radius: var(--r-lg); overflow: hidden; background: #fff; border: 1px solid var(--line); transition: box-shadow .2s ease, transform .2s var(--ease); }
+.machine-card:hover { box-shadow: var(--shadow); transform: translateY(-3px); }
+.machine-card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; background: #fff; }
+.machine-card-body { padding: 14px 16px 16px; }
+.machine-label { display: block; font: 650 .95rem/1.3 var(--font-head); color: var(--ink); }
+.machine-make { display: block; font-size: .8rem; font-weight: 500; color: var(--muted); margin-top: 3px; }
+@media (max-width: 1024px) { .machine-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .machine-grid { grid-template-columns: 1fr 1fr; gap: 12px; } }
