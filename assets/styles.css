@@ -496,3 +496,57 @@ select::-ms-expand { display: none; }
 .machine-make { display: block; font-size: .8rem; font-weight: 500; color: var(--muted); margin-top: 3px; }
 @media (max-width: 1024px) { .machine-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .machine-grid { grid-template-columns: 1fr 1fr; gap: 12px; } }
+
+/* -------------------------------------------- brand marquee scroller
+   Logos float directly on the section background: no boxes, borders or
+   shadows. The belt never pauses; hovering a logo only lifts that logo.
+   It holds two identical lists and slides exactly half its width, so the
+   loop has no jump. */
+.brand-marquee {
+  --u: 1;                               /* size scale, lowered on phones */
+  --slot-w: calc(200px * var(--u));
+  --slot-h: calc(110px * var(--u));
+  --gap: calc(36px * var(--u));
+  position: relative;
+  overflow: hidden;
+  padding: 30px 0 38px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+}
+.brand-track {
+  display: flex;
+  width: max-content;
+  animation: brand-scroll 48s linear infinite;   /* no :hover pause anywhere */
+  will-change: transform;
+}
+@keyframes brand-scroll { to { transform: translateX(-50%); } }
+
+.brand-set { display: flex; flex: none; gap: var(--gap); margin: 0; padding: 0 var(--gap) 0 0; list-style: none; }
+
+.brand-tile { flex: none; display: grid; place-items: center; width: var(--slot-w); height: var(--slot-h); }
+.brand-tile img {
+  width: auto; height: auto;
+  max-width: calc(160px * var(--u));
+  max-height: calc(64px * var(--u));
+  object-fit: contain;
+  display: block;
+  transition: transform .4s var(--ease), filter .4s var(--ease);
+}
+.brand-tile:hover img { transform: translateY(-6px) scale(1.1); filter: drop-shadow(0 14px 14px rgba(12, 27, 61, .22)); }
+
+/* optical balancing: tall, wide and round logos need different boxes */
+.brand-tile--tall img  { max-width: calc(132px * var(--u)); max-height: calc(84px * var(--u)); }
+.brand-tile--wide img  { max-width: calc(172px * var(--u)); }
+.brand-tile--round img { max-width: calc(88px * var(--u));  max-height: calc(88px * var(--u)); }
+
+.brand-note { margin-top: 4px; text-align: center; font-size: .98rem; color: var(--muted); }
+
+@media (max-width: 640px) {
+  .brand-marquee { --u: .7; padding: 22px 0 30px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%); }
+}
+/* Reduced motion: no automatic movement; the row can be scrolled by hand. */
+@media (prefers-reduced-motion: reduce) {
+  .brand-marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .brand-track { animation: none; }
+  .brand-set[aria-hidden="true"] { display: none; }
+}
